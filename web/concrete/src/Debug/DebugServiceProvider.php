@@ -2,8 +2,8 @@
 namespace Concrete\Core\Debug;
 
 
-use Illuminate\Support\ServiceProvider;
 use DebugBar\StandardDebugBar;
+use Illuminate\Support\ServiceProvider;
 
 class DebugServiceProvider extends ServiceProvider
 {
@@ -13,12 +13,11 @@ class DebugServiceProvider extends ServiceProvider
         $this->app->instance('debugbar', $bar = new StandardDebugBar());
         $debugStack = new \Doctrine\DBAL\Logging\DebugStack();
 
+        // Cache javascript renderer object.
+        $bar->getJavascriptRenderer('/concrete/vendor/maximebf/debugbar/src/DebugBar/Resources');
 
-        $db = $this->app->make('database');
-
-        $db->getActiveConnection()->getConfiguration()->setSQLLogger($debugStack);
+        \Database::connection()->getConfiguration()->setSQLLogger($debugStack);
         $bar->addCollector(new \DebugBar\Bridge\DoctrineCollector($debugStack));
-
     }
 
 }

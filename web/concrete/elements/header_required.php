@@ -165,9 +165,3 @@ if (empty($disableTrackingCode) && $_trackingCodePosition === 'top') {
 	echo Config::get('concrete.seo.tracking.code');
 }
 echo $c->getCollectionAttributeValue('header_extra_content');
-
-/** @var Debugbar $debugbar */
-$debugbar = Core::make('debugbar');
-$debugbarRenderer = $debugbar->getJavascriptRenderer();
-
-echo $debugbarRenderer->renderHead();

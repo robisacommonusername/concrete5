@@ -14,10 +14,16 @@ class DebugServiceProvider extends ServiceProvider
         $debugStack = new \Doctrine\DBAL\Logging\DebugStack();
 
         // Cache javascript renderer object.
-        $bar->getJavascriptRenderer('/concrete/vendor/maximebf/debugbar/src/DebugBar/Resources');
+        $renderer = $bar->getJavascriptRenderer('/concrete/vendor/maximebf/debugbar/src/DebugBar/Resources');
 
         \Database::connection()->getConfiguration()->setSQLLogger($debugStack);
         $bar->addCollector(new \DebugBar\Bridge\DoctrineCollector($debugStack));
+
+        \View::getInstance()->addHeaderItem($renderer->renderHead());
+
+        \Events::addListener('on_shutdown', function() use ($renderer) {
+            echo $renderer->render();
+        });
     }
 
 }

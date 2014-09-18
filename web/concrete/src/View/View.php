@@ -276,6 +276,7 @@ class View extends AbstractView {
         $outputItems = array();
         foreach($outputAssets as $position => $assets) {
             $output = '';
+
             $transformed = $this->postProcessAssets($assets);
             foreach($transformed as $item) {
                 $itemstring = (string) $item;

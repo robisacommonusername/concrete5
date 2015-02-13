@@ -697,7 +697,7 @@ class Version
 
     public function rescanThumbnails()
     {
-        if ($this->getType() != \Concrete\Core\File\Type\Type::T_IMAGE) {
+        if ($this->fvType != \Concrete\Core\File\Type\Type::T_IMAGE) {
             return false;
         }
 

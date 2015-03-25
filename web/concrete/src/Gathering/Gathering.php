@@ -3,6 +3,7 @@ namespace Concrete\Core\Gathering;
 use Concrete\Core\Gathering\DataSource\Configuration\Configuration;
 use Loader;
 use \Concrete\Core\Foundation\Object;
+use Concrete\Core\Gathering\Item\Item as GatheringItem;
 class Gathering extends Object implements \Concrete\Core\Permission\ObjectInterface {
 
 	public function getGatheringID() {return $this->gaID;}

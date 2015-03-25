@@ -10,7 +10,7 @@ class FlickrFeed extends Item {
 
 	public static function getListByItem($mixed) {
 		$ags = GatheringDataSource::getByHandle('flickr_feed');
-		return GatheringItem::getListByKey($ags, $mixed->get_link());
+		return GatheringItem::getListByKey($ags, md5(trim($mixed->getLink())));
 	}
 	
 	public static function add(Configuration $configuration, $post) {

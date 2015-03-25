@@ -1,21 +1,21 @@
 <?php
 namespace Concrete\Core\Gathering\DataSource;
+use Concrete\Core\Gathering\DataSource\Configuration\RssFeedConfiguration;
+use Concrete\Core\Gathering\Item\RssFeed;
 use Loader;
 use \Concrete\Core\Gathering\DataSource\Configuration\Configuration as GatheringDataSourceConfiguration;
+use Concrete\Core\Gathering\Gathering;
 class RssFeedDataSource extends DataSource {
 
 	public function createConfigurationObject(Gathering $ag, $post) {
-		$o = new RssFeedGatheringDataSourceConfiguration();
+		$o = new RssFeedConfiguration();
 		$o->setRssFeedURL($post['rssFeedURL']);
 		return $o;
 	}
 
 	public function createGatheringItems(GatheringDataSourceConfiguration $configuration) {
 		$fp = Loader::helper('feed');
-		$feed = $fp->load($configuration->getRssFeedURL(), false); 
-		$feed->init();
-		$feed->handle_content_type();
-		$posts = $feed->get_items(0);
+		$posts = $fp->load($configuration->getRssFeedURL(), false);
 
 		$gathering = $configuration->getGatheringObject();
 		$lastupdated = 0;
@@ -25,9 +25,9 @@ class RssFeedDataSource extends DataSource {
 
 		$items = array();
 		foreach($posts as $p) {
-			$posttime = strtotime($p->get_date('Y-m-d H:i:s'));
+			$posttime = $p->getDateCreated()->getTimestamp();
 			//if ($posttime > $lastupdated) {
-				$item = RssFeedGatheringItem::add($configuration, $p);
+				$item = RssFeed::add($configuration, $p);
 			//}
 
 			if (is_object($item)) {

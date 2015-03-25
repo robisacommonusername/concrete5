@@ -1,9 +1,15 @@
 <?php
 namespace Concrete\Core\Gathering\Item;
 
+use Concrete\Core\Feature\Assignment\GatheringItemAssignment;
+use Concrete\Core\Feature\Feature;
+use Concrete\Core\Gathering\Item\Template\Template;
+use Concrete\Core\Gathering\Item\Template\Type;
 use Loader;
 use \Concrete\Core\Foundation\Object;
 use \Concrete\Core\Gathering\DataSource\DataSource as GatheringDataSource;
+use Concrete\Core\Gathering\Gathering;
+use Concrete\Core\Gathering\Item\Template\Type as GatheringItemTemplateType;
 
 abstract class Item extends Object
 {
@@ -51,7 +57,7 @@ abstract class Item extends Object
     {
         $gatID = $this->getGatheringItemTemplateID($type);
         if ($gatID) {
-            return GatheringItemTemplate::getByID($gatID);
+            return Template::getByID($gatID);
         }
     }
 
@@ -133,7 +139,7 @@ abstract class Item extends Object
         $this->setGatheringItemBatchDisplayOrder(0);
     }
 
-    public function setGatheringItemTemplate(GatheringItemTemplateType $type, GatheringItemTemplate $template)
+    public function setGatheringItemTemplate(Type $type, Template $template)
     {
         $db = Loader::db();
         $db->Execute(
@@ -197,7 +203,7 @@ abstract class Item extends Object
         );
         if (is_array($r) && $r['gaiID'] == $gaiID) {
             if (!$r['gaiIsDeleted']) {
-                $class = Loader::helper('text')->camelcase($r['gasHandle']) . 'GatheringItem';
+                $class = '\\Concrete\\Core\\Gathering\\Item\\' . Loader::helper('text')->camelcase($r['gasHandle']);
                 $ags = new $class();
                 $ags->setPropertiesFromArray($r);
                 $ags->loadDetails();
@@ -250,7 +256,7 @@ abstract class Item extends Object
                 $gaiSlotHeight
             )
         );
-        return GatheringItem::getByID($db->Insert_ID());
+        return Item::getByID($db->Insert_ID());
     }
 
 
@@ -285,9 +291,9 @@ abstract class Item extends Object
             );
         }
 
-        $item = GatheringItem::getByID($gaiID);
+        $item = Item::getByID($gaiID);
 
-        $assignments = GatheringItemFeatureAssignment::getList($this);
+        $assignments = GatheringItemAssignment::getList($this);
         foreach ($assignments as $as) {
             $item->copyFeatureAssignment($as);
         }
@@ -307,7 +313,7 @@ abstract class Item extends Object
     {
         $f = Feature::getbyHandle($feHandle);
         $fd = $f->getFeatureDetailObject($mixed);
-        $as = GatheringItemFeatureAssignment::add($f, $fd, $this);
+        $as = GatheringItemAssignment::add($f, $fd, $this);
         return $as;
     }
 
@@ -371,7 +377,7 @@ abstract class Item extends Object
                     array($row['gatID'])
                 );
                 if ($arr->subset($templateFeatureHandles, $myFeatureHandles)) {
-                    $matched[] = GatheringItemTemplate::getByID($row['gatID']);
+                    $matched[] = Template::getByID($row['gatID']);
                 }
             }
 
@@ -393,7 +399,7 @@ abstract class Item extends Object
         }
     }
 
-    public function itemSupportsGatheringItemTemplate(GatheringItemTemplate $template)
+    public function itemSupportsGatheringItemTemplate(Template $template)
     {
         // checks to see if all the features necessary to implement the template are present in this item.
         $templateFeatures = $template->getGatheringItemTemplateFeatureHandles();
@@ -421,7 +427,7 @@ abstract class Item extends Object
         $t = $this->getGatheringItemTemplateObject($type);
         if (is_object($t)) {
             $data = $t->getGatheringItemTemplateData($this);
-            $env = Environment::get();
+            $env = \Environment::get();
             extract($data);
             Loader::element(
                 DIRNAME_GATHERING . '/' . DIRNAME_GATHERING_ITEM_TEMPLATES . '/' . $type->getGatheringItemTemplateTypeHandle(

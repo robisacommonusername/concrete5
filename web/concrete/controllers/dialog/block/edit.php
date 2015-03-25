@@ -12,6 +12,7 @@ class Edit extends BackendInterfaceBlockController
 {
 
     protected $viewPath = '/dialogs/block/edit';
+    protected $controllerActionPath = '/ccm/system/dialogs/block/edit';
 
     public function view()
     {
@@ -29,7 +30,6 @@ class Edit extends BackendInterfaceBlockController
     public function submit()
     {
         if ($this->validateAction() && $this->canAccess()) {
-
             $c = $this->page;
             $a = \Area::get($this->page, $_REQUEST['arHandle']);
             $ax = $a;

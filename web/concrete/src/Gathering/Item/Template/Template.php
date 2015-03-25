@@ -99,20 +99,20 @@ abstract class Template extends Object {
 	public function getGatheringItemTemplateFixedSlotHeight() {return $this->gatFixedSlotHeight;}
 	public function getGatheringItemTemplateTypeObject() {return Type::getByID($this->gatTypeID);}
 	public function getGatheringItemTemplateTypeID() {return $this->gatTypeID;}
-	public function getGatheringItemTemplateMinimumSlotHeight(GatheringItem $item) {
+	public function getGatheringItemTemplateMinimumSlotHeight(Item $item) {
 		return 1;
 	}
-	public function getGatheringItemTemplateMaximumSlotHeight(GatheringItem $item) {
+	public function getGatheringItemTemplateMaximumSlotHeight(Item $item) {
 		return 2;
 	}
-	public function getGatheringItemTemplateMinimumSlotWidth(GatheringItem $item) {
+	public function getGatheringItemTemplateMinimumSlotWidth(Item $item) {
 		return 1;
 	}
-	public function getGatheringItemTemplateMaximumSlotWidth(GatheringItem $item) {
+	public function getGatheringItemTemplateMaximumSlotWidth(Item $item) {
 		return 3;
 	}
 	public function getGatheringItemTemplateIconSRC() {
-		$env = Environment::get();
+		$env = \Environment::get();
 		$type = $this->getGatheringItemTemplateTypeObject();
 		$path = $env->getURL(DIRNAME_ELEMENTS . '/' . DIRNAME_GATHERING . '/' . DIRNAME_GATHERING_ITEM_TEMPLATES . '/' . $type->getGatheringItemTemplateTypeHandle() . '/' . $this->getGatheringItemTemplateHandle() . '/' . FILENAME_GATHERING_ITEM_TEMPLATE_ICON);
 		return $path;
@@ -121,7 +121,7 @@ abstract class Template extends Object {
 	/**
 	 * This method is called by GatheringItem when setting defaults
 	 */
-	public function getGatheringItemTemplateSlotWidth(GatheringItem $item) {
+	public function getGatheringItemTemplateSlotWidth(Item $item) {
 		if ($this->getGatheringItemTemplateFixedSlotWidth()) {
 			return $this->getGatheringItemTemplateFixedSlotWidth();
 		}
@@ -258,8 +258,8 @@ abstract class Template extends Object {
 		$db->Execute('delete from GatheringItemTemplates where gatID = ?', array($this->gatID));
 	}
 
-	public function getGatheringItemTemplateData(\Concrete\Gathering\Item $item) {
-		$assignments = \Concrete\Core\Gathering\Feature\Assignment::getList($item);
+	public function getGatheringItemTemplateData(Item $item) {
+		$assignments = GatheringItemAssignment::getList($item);
 		$data = array();
 		foreach($assignments as $as) {
 			$fd = $as->getFeatureDetailObject();
@@ -273,6 +273,7 @@ abstract class Template extends Object {
 				$data[$key] = $fd;
 			}
 		}
+		$data['item'] = $item;
 		return $data;
 	}
 

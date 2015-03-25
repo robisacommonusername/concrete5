@@ -1,11 +1,11 @@
 <? defined('C5_EXECUTE') or die("Access Denied."); ?>
 <?
 $ap = new Permissions($item->getGatheringObject());
-$type = GatheringItemTemplateType::getByHandle('tile');
-$types = GatheringItemTemplateType::getList();
+$type = \Concrete\Core\Gathering\Item\Template\Type::getByHandle('tile');
+$types = \Concrete\Core\Gathering\Item\Template\Type::getList();
 if ($item->canViewGatheringItem()) { ?>
 
-<div data-block-type-handle="<?=BLOCK_HANDLE_GATHERING_ITEM_PROXY?>" data-gathering-item-batch-timestamp="<?=$item->getGatheringItemBatchTimestamp()?>" data-gathering-item-id="<?=$item->getGatheringItemID()?>" class="ccm-gathering-item h<?=$item->getGatheringItemSlotHeight()?> w<?=$item->getGatheringItemSlotWidth()?>">
+<div data-block-type-handle="<?=BLOCK_HANDLE_GATHERING_ITEM_PROXY?>" data-gathering-item-batch-timestamp="<?=$item->getGatheringItemBatchTimestamp()?>" data-gathering-item-id="<?=$item->getGatheringItemID()?>" class="ccm-gathering-item gh<?=$item->getGatheringItemSlotHeight()?> gw<?=$item->getGatheringItemSlotWidth()?>">
   <div class="ccm-gathering-item-inner">
   <? if ($showTileControls && $ap->canEditGatheringItems()) { ?>
   <div class="ccm-ui">

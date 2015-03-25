@@ -1,11 +1,14 @@
 <?php
 namespace Concrete\Core\Gathering\DataSource;
+use Concrete\Core\Gathering\DataSource\Configuration\PageConfiguration;
 use Loader;
 use \Concrete\Core\Gathering\DataSource\Configuration\Configuration as GatheringDataSourceConfiguration;
+use Concrete\Core\Gathering\Gathering;
+
 class PageDataSource extends DataSource {
 
 	public function createConfigurationObject(Gathering $ga, $post) {
-		$o = new PageGatheringDataSourceConfiguration();
+		$o = new PageConfiguration();
 		if ($post['ptID']) {
 			$o->setPageTypeID($post['ptID']);
 		}

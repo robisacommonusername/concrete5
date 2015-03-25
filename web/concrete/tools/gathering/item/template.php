@@ -4,9 +4,9 @@ $nh = Loader::helper('validation/numbers');
 $form = Loader::helper('form');
 $gaiID = intval($_REQUEST['gaiID']);
 $gatTypeID = intval($_REQUEST['gatTypeID']);
-$type = GatheringItemTemplateType::getByID($gatTypeID);
+$type = \Concrete\Core\Gathering\Item\Template\Type::getByID($gatTypeID);
 $nh = Loader::helper('validation/numbers');
-$item = GatheringItem::getByID($gaiID);
+$item = \Concrete\Core\Gathering\Item\Item::getByID($gaiID);
 if (is_object($item) && is_object($type)) {
   $gathering = $item->getGatheringObject();
   $agp = new Permissions($gathering);
@@ -17,7 +17,7 @@ if (is_object($item) && is_object($type)) {
     }
 
     if ($_POST['task'] == 'update_item_template') {
-      $template = GatheringItemTemplate::getByID($_POST['gatID']);
+      $template = \Concrete\Core\Gathering\Item\Template\Template::getByID($_POST['gatID']);
       $item->setGatheringItemTemplate($type, $template);
       if ($reloadItemTile) {
         $item->render($type);
@@ -25,7 +25,7 @@ if (is_object($item) && is_object($type)) {
       exit;
     }
   
-    $assignments = GatheringItemFeatureAssignment::getList($item);
+    $assignments = \Concrete\Core\Feature\Assignment\GatheringItemAssignment::getList($item);
     $features = array();
     foreach($assignments as $as) {
       $f = $as->getFeatureObject();
@@ -34,7 +34,7 @@ if (is_object($item) && is_object($type)) {
       }
     }
 
-    $templates = GatheringItemTemplate::getListByType($type);
+    $templates = \Concrete\Core\Gathering\Item\Template\Tile\Template::getListByType($type);
     ?>
 
 

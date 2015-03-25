@@ -1,6 +1,7 @@
 <?php
 namespace Concrete\Core\Page\Type\Composer\Control;
 
+use Concrete\Core\Controller\AbstractController;
 use Loader;
 use \Concrete\Core\Foundation\Object;
 use Controller;
@@ -143,7 +144,7 @@ class BlockControl extends Control
         return false;
     }
 
-    public function addAssetsToRequest(Controller $cnt)
+    public function addAssetsToRequest(AbstractController $cnt)
     {
         $bt = $this->getBlockTypeObject();
         $controller = $bt->getController();

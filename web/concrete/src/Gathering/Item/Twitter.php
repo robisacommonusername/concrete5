@@ -1,6 +1,10 @@
 <?php
 namespace Concrete\Core\Gathering\Item;
+use Concrete\Core\Gathering\Item\Template\Template;
+use Concrete\Core\Gathering\Item\Template\Type;
 use Loader;
+use Concrete\Core\Gathering\DataSource\Configuration\Configuration;
+
 class Twitter extends Item {
 
 	public function loadDetails() {}
@@ -11,20 +15,20 @@ class Twitter extends Item {
 		return GatheringItem::getListByKey($ags, $mixed->get_link());
 	}
 
-	public static function add(GatheringDataSourceConfiguration $configuration, $tweet) {
+	public static function add(Configuration $configuration, $tweet) {
 		$gathering = $configuration->getGatheringObject();
 		try {
 			// we wrap this in a try because it MIGHT fail if it's a duplicate
 			$item = parent::add($gathering, $configuration->getGatheringDataSourceObject(), date('Y-m-d H:i:s', strtotime($tweet->created_at)), $tweet->text, $tweet->id);
-		} catch(Exception $e) {}
+		} catch(\Exception $e) {}
 
 		if (is_object($item)) {
 			$item->assignFeatureAssignments($tweet);
 			if(count($tweet->entities->media) > 0 && $tweet->entities->media[0]->type == 'photo') {
 				$item->setAutomaticGatheringItemTemplate();
 			} else {
-				$type = GatheringItemTemplateType::getByHandle('tile');
-				$template = GatheringItemTemplate::getByHandle('tweet');
+				$type = Type::getByHandle('tile');
+				$template = Template::getByHandle('tweet');
 				$item->setGatheringItemTemplate($type, $template);
 			}
 			return $item;

@@ -2,10 +2,10 @@
 
 $nh = Loader::helper('validation/numbers');
 if ($_POST['gaID'] && $nh->integer($_POST['gaID'])) {
-  $gathering = Gathering::getByID($_POST['gaID']);
+  $gathering = \Concrete\Core\Gathering\Gathering::getByID($_POST['gaID']);
   if (is_object($gathering) && Loader::helper('validation/token')->validate('get_gathering_items', $_POST['loadToken'])) {
     $showTileControls = ($_POST['showTileControls'] && Loader::helper('validation/token')->validate('update_gathering_items', $_POST['editToken']));
-    $list = new GatheringItemList($gathering);
+    $list = new \Concrete\Core\Gathering\Item\ItemList($gathering);
     $list->sortByDateDescending();
     $list->setItemsPerPage($_REQUEST['itemsPerPage']);
     $items = $list->getPage($_REQUEST['page']);

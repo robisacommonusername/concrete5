@@ -5,7 +5,7 @@ $form = Loader::helper('form');
 $gaiID = intval($_REQUEST['gaiID']);
 
 $nh = Loader::helper('validation/numbers');
-$item = GatheringItem::getByID($gaiID);
+$item = \Concrete\Core\Gathering\Item\Item::getByID($gaiID);
 if (is_object($item)) {
   $gathering = $item->getGatheringObject();
   $agp = new Permissions($gathering);

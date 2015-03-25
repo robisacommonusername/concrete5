@@ -1,5 +1,6 @@
 <?php 
 namespace Concrete\Core\Page\Type\Composer\Control\CorePageProperty;
+use Concrete\Core\Controller\AbstractController;
 use Loader;
 use Environment;
 use Page;
@@ -12,7 +13,7 @@ abstract class CorePageProperty extends \Concrete\Core\Page\Type\Composer\Contro
 	private static $ptComposerSaveRequest = null;
 	private static $ptComposerRequestControlsProcessed = array();
 	
-	public function addAssetsToRequest(Controller $cnt) {
+	public function addAssetsToRequest(AbstractController $cnt) {
 
 	}
 

@@ -1,5 +1,6 @@
 <?php
 namespace Concrete\Core\Gathering;
+use Concrete\Core\Gathering\DataSource\Configuration\Configuration;
 use Loader;
 use \Concrete\Core\Foundation\Object;
 class Gathering extends Object implements \Concrete\Core\Permission\ObjectInterface {
@@ -70,7 +71,7 @@ class Gathering extends Object implements \Concrete\Core\Permission\ObjectInterf
 		$r = $db->Execute('select gcsID from GatheringConfiguredDataSources where gaID = ?', array($this->gaID));
 		$list = array();
 		while ($row = $r->FetchRow()) {
-			$source = GatheringDataSourceConfiguration::getByID($row['gcsID']);
+			$source = Configuration::getByID($row['gcsID']);
 			if (is_object($source)) {
 				$list[] = $source;
 			}

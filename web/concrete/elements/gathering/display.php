@@ -50,11 +50,11 @@ $(function() {
 
 <style type="text/css">
 <? for ($i = 1; $i <= 8; $i++) { ?>
-  div.w<?=$i?> {
+  div.gw<?=$i?> {
     width: <?=(($i * $pt->getThemeGatheringGridItemWidth()) + ($pt->getThemeGatheringGridItemMargin() * ($i - 1)))?>px;
   }
 
-  div.h<?=$i?> {
+  div.gh<?=$i?> {
     height: <?=(($i * $pt->getThemeGatheringGridItemHeight()) + ($pt->getThemeGatheringGridItemMargin() * ($i - 1)))?>px;
   }
 <? } ?>

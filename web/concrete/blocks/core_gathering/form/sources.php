@@ -4,18 +4,16 @@ defined('C5_EXECUTE') or die("Access Denied.");
 
 <input type="hidden" name="tab[]" value="sources" />
 
-<div class="form-inline">
-<div class="control-group">
+<div class="form-group">
 	<label class="control-label"><?=t('Add Source')?></label>
-	<div class="controls">
-		<select name="addSource" class="span2">
-			<? foreach($availableSources as $ags) { ?>
-			<option value="<?=$ags->getGatheringDataSourceID()?>"><?=$ags->getGatheringDataSourceName()?></option>
-			<? } ?>
-		</select>
-		<button class="btn" type="button" data-submit="add-source"><?=t('Add')?></button>
+	<div class="form-inline">
+	<select class="form-control" name="addSource" class="span2">
+		<? foreach($availableSources as $ags) { ?>
+		<option value="<?=$ags->getGatheringDataSourceID()?>"><?=$ags->getGatheringDataSourceName()?></option>
+		<? } ?>
+	</select>
+	<button class="btn btn-default" type="button" data-submit="add-source"><?=t('Add')?></button>
 	</div>
-</div>
 </div>
 
 <div id="ccm-gathering-data-source-templates" style="display: none">

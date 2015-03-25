@@ -1,6 +1,7 @@
 <?php
 namespace Concrete\Core\Page\Type\Composer\Control;
 
+use Concrete\Core\Controller\AbstractController;
 use Loader;
 use \Concrete\Core\Foundation\Object;
 use Controller;
@@ -141,7 +142,7 @@ class CollectionAttributeControl extends Control
         }
     }
 
-    public function addAssetsToRequest(Controller $cnt)
+    public function addAssetsToRequest(AbstractController $cnt)
     {
         $ak = $this->getAttributeKeyObject();
         $akc = $ak->getController();

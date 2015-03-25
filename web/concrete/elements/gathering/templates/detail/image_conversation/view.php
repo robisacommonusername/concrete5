@@ -4,7 +4,7 @@ if (is_array($image)) {
 $image = $image[0];
 }?>
 
-<div class="ccm-gathering-overlay image-sharing-link" id="image-sharing-link-<?php echo $this->gaiID; ?>">
+<div class="ccm-gathering-overlay image-sharing-link" id="image-sharing-link-<?php echo $item->getGatheringItemID(); ?>">
 	<div class="image-sharing-link-controls">
 		<img class="overlay-header-image" src="<?=$image->getSrc()?>" style="max-width: 600px" />
 		<div class="ccm-gathering-overlay-title ccm-gathering-thumbnail-caption">

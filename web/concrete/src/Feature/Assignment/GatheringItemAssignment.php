@@ -3,6 +3,8 @@ namespace Concrete\Core\Feature\Assignment;
 use \Concrete\Core\Feature\Feature;
 use \Concrete\Core\Feature\Category\Category as FeatureCategory;
 use \Concrete\Core\Feature\Detail\Detail as FeatureDetail;
+use Loader;
+
 class GatheringItemAssignment extends Assignment {
 
     protected $gaiID;

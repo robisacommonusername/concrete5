@@ -2,13 +2,13 @@
 
 $nh = Loader::helper('validation/numbers');
 if ($_POST['gaID'] && $nh->integer($_POST['gaID'])) {
-  $gathering = Gathering::getByID($_POST['gaID']);
+  $gathering = \Concrete\Core\Gathering\Gathering::getByID($_POST['gaID']);
   if (is_object($gathering) && Loader::helper('validation/token')->validate('update_gathering_items', $_POST['editToken'])) {
     $agp = new Permissions($gathering);
     if ($agp->canEditGatheringItems()) {
         switch($_POST['task']) {
           case 'resize':
-            $agi = GatheringItem::getByID($_POST['gaiID']);
+            $agi = \Concrete\Core\Gathering\Item\Item::getByID($_POST['gaiID']);
             $sw = intval($_POST['gaiSlotWidth']);
             $sh = intval($_POST['gaiSlotHeight']);
             if (!$sw) {
@@ -25,16 +25,16 @@ if ($_POST['gaID'] && $nh->integer($_POST['gaID'])) {
             $displayOrder = 0;
             $batch = time();
             foreach($_POST['gaiID'] as $gaiID) {
-              $agi = GatheringItem::getByID($gaiID);
+              $agi = \Concrete\Core\Gathering\Item\Item::getByID($gaiID);
               $agi->setGatheringItemBatchTimestamp($batch);
               $agi->setGatheringItemBatchDisplayOrder($displayOrder);
               $displayOrder++;
             }
             break;
           case 'move_to_new_gathering':
-            $item = GatheringItem::getByID($_POST['gaiID']);
+            $item = \Concrete\Core\Gathering\Item\Item::getByID($_POST['gaiID']);
             $item->moveToNewGathering($gathering);
-            $il = new GatheringItemList($gathering);
+            $il = new \Concrete\Core\Gathering\Item\ItemList($gathering);
             $il->sortByDateDescending();
             $il->setItemsPerPage($_POST['itemsPerPage']);
             $c = Page::getByID($_POST['cID'], 'RECENT');

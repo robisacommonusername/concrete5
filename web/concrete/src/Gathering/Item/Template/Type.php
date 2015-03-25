@@ -22,9 +22,10 @@ class Type extends Object {
 	}
 
 	public static function getList() {
-		$gaItemTemplateTypeList = CacheLocal::getEntry('gaItemTemplateTypeList', false);
-		if ($gaItemTemplateTypeList != false) {
-			return $gaItemTemplateTypeList;
+		$cache = \Core::make('cache/request');
+		$item = $cache->getItem('gathering.templates');
+		if (!$item->isMiss()) {
+			return $item->get();
 		}
 
 		$db = Loader::db();
@@ -39,7 +40,7 @@ class Type extends Object {
 		}
 
 		$r->Close();
-		CacheLocal::set('gaItemTemplateTypeList', false, $list);
+		$item->set($list);
 		return $list;
 	}
 

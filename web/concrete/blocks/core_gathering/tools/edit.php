@@ -8,9 +8,12 @@ if ($cID > 0 && $bID > 0) {
 	$b = Block::getByID($bID, $c, $arHandle);
 	if (is_object($b) && !$b->isError()) {
 		$bp = new Permissions($b);
+		$dialogController = new \Concrete\Controller\Dialog\Block\Edit();
+		$dialogController->on_start();
 		if ($bp->canEditBlock()) { 
 
 			$bt = $b->getBlockTypeObject();
+			$view = new \Concrete\Core\Block\View\BlockView($b);
 			$controller = $b->getController();
 			$controller->runTask('edit', array());
 			$sets = $controller->getSets();
@@ -21,13 +24,7 @@ if ($cID > 0 && $bID > 0) {
 
 			?>
 			<div class="ccm-ui">
-			<form method="post" id="ccm-gathering-edit-form" action="<?=$b->getBlockEditAction()?>" enctype="multipart/form-data">
-				<?=Loader::helper('validation/token')->output()?>
-				<input type="hidden" name="arHandle" value="<?=$arHandle?>" />
-				<input type="hidden" name="cID" value="<?=$cID?>" />
-				<input type="hidden" name="bID" value="<?=$bID?>" />
-				<input type="hidden" name="processBlock" value="1" />
-				<input type="hidden" name="update" value="1" />
+			<form method="post" id="ccm-gathering-edit-form" action="<?=$dialogController->action('submit')?>" enctype="multipart/form-data">
 
 			<?
 
@@ -61,15 +58,7 @@ if ($cID > 0 && $bID > 0) {
 						jQuery.fn.dialog.showLoader();
 					},
 					success: function(resp) {
-						var editor = Concrete.getEditMode();
-						var area = editor.getAreaByID(resp.aID);
-						var block = area.getBlockByID(<?=$bID?>);
-						var newBlock = block.replace(resp.bID, false);
-				        Concrete.event.fire('EditModeBlockEditInline', {
-				          block: newBlock
-				        });
-						jQuery.fn.dialog.hideLoader();
-						jQuery.fn.dialog.closeTop();
+						window.location.reload();
 					}
 				});
 			});

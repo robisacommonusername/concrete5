@@ -1,8 +1,11 @@
 <?
 namespace Concrete\Block\CoreGathering;
+use Concrete\Core\Page\Type\Type;
 use Loader;
 use \Concrete\Core\Gathering\Gathering;
 use \Concrete\Core\Block\BlockController;
+use Concrete\Core\Gathering\DataSource\DataSource as GatheringDataSource;
+use Concrete\Core\Gathering\Item\ItemList as GatheringItemList;
 class Controller extends BlockController {
 
 		protected $btCacheBlockRecord = true;
@@ -60,12 +63,12 @@ class Controller extends BlockController {
 
 		public function action_post() {
 			// happens through ajax
-			$pagetype = PageType::getByID($this->ptID);
+			$pagetype = Type::getByID($this->ptID);
 			if (is_object($pagetype) && $this->enablePostingFromGathering) {
-				$ccp = new Permissions($pagetype);
+				$ccp = new \Permissions($pagetype);
 				if ($ccp->canEditPageTypeInComposer()) {
 
-					$ct = PageType::getByID($this->post('ptComposerPageTypeID'));
+					$ct = Type::getByID($this->post('ptComposerPageTypeID'));
 					$availablePageTypes = $pagetype->getComposerPageTypeObjects();
 
 					if (!is_object($ct) && count($availablePageTypes) == 1) {
@@ -171,11 +174,11 @@ class Controller extends BlockController {
 			if ($this->gaID) {
 				$gathering = Gathering::getByID($this->gaID);
 				if (is_object($gathering)) {
-					Loader::helper('overlay')->init(false);
+					Loader::helper('lightbox')->init(false);
 					if ($this->enablePostingFromGathering && $this->ptID) {
-						$pt = PageType::getByID($this->ptID);
+						$pt = Type::getByID($this->ptID);
 						Loader::helper('concrete/composer')->addAssetsToRequest($pt, $this);
-						$p = new Permissions($pt);
+						$p = new \Permissions($pt);
 						if ($p->canEditPageTypeInComposer()) {
 							$this->set('pagetype', $pt);
 						}

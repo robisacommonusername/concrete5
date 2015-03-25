@@ -2,6 +2,8 @@
 namespace Concrete\Core\Gathering\Item;
 use Loader;
 use Concrete\Core\Gathering\DataSource\DataSource as GatheringDataSource;
+use Concrete\Core\Gathering\DataSource\Configuration\Configuration;
+
 class Page extends Item {
 
 	public function canViewGatheringItem() {
@@ -18,12 +20,12 @@ class Page extends Item {
         }
 	}
 
-	public static function add(GatheringDataSourceConfiguration $configuration, Page $c) {
+	public static function add(Configuration $configuration, Page $c) {
 		$gathering = $configuration->getGatheringObject();
 		try {
 			// we wrap this in a try because it MIGHT fail if it's a duplicate
 			$item = parent::add($gathering, $configuration->getGatheringDataSourceObject(), $c->getCollectionDatePublic(), $c->getCollectionName(), $c->getCollectionID());
-		} catch (Exception $e) {}
+		} catch (\Exception $e) {}
 
 		if (is_object($item)) {
 			$db = Loader::db();

@@ -1,6 +1,7 @@
 <?php
 namespace Concrete\Core\Application\Service;
 
+use Concrete\Core\Controller\AbstractController;
 use Concrete\Core\Page\Type\Type;
 use PageType;
 use \Concrete\Core\Page\Type\Composer\Control\Control as PageTypeComposerControl;
@@ -34,7 +35,7 @@ class Composer
      * @param PageType $pt
      * @param \Controller $cnt
      */
-    public function addAssetsToRequest(PageType $pt, \Controller $cnt)
+    public function addAssetsToRequest(Type $pt, AbstractController $cnt)
     {
         $list = PageTypeComposerControl::getList($pt);
         foreach ($list as $l) {

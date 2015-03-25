@@ -15,6 +15,7 @@
         <feature handle="conversation" score="10" has-custom-class="true" />
         <feature handle="description" score="1" />
         <feature handle="featured" score="1000" />
+        <feature handle="video" score="600" />
     </features>
     <gatheringitemtemplatetypes>
         <gatheringitemtemplatetype handle="tile" package="" />
@@ -123,8 +124,9 @@
             <feature handle="date_time" />
             <feature handle="author" />
 		</gatheringitemtemplate>
-		<gatheringitemtemplate handle="vimeo" type="tile" name="Vimeo" package="">
+		<gatheringitemtemplate handle="video" type="tile" name="Video" package="">
 			<feature handle="title" />
+            <feature handle="video" />
 		</gatheringitemtemplate>
 		<gatheringitemtemplate handle="image_overlay_headline" type="tile" name="Image Overlay Headline" package="">
 			<feature handle="title" />

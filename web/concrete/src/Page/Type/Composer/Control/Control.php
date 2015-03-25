@@ -1,6 +1,7 @@
 <?php
 namespace Concrete\Core\Page\Type\Composer\Control;
 
+use Concrete\Core\Controller\AbstractController;
 use Concrete\Core\Page\Type\Type;
 use Loader;
 use \Concrete\Core\Foundation\Object;
@@ -25,7 +26,7 @@ abstract class Control extends Object
     abstract public function publishToPage(Page $c, $data, $controls);
     abstract public function validate();
     abstract public function getPageTypeComposerControlDraftValue();
-    abstract public function addAssetsToRequest(Controller $cnt);
+    abstract public function addAssetsToRequest(AbstractController $cnt);
     abstract public function export($node);
     abstract public function shouldPageTypeComposerControlStripEmptyValuesFromPage();
     abstract public function isPageTypeComposerControlValueEmpty();

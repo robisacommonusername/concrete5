@@ -1,39 +1,48 @@
 <?php
 namespace Concrete\Core\Gathering\Item;
+
 use Loader;
 use Concrete\Core\Legacy\DatabaseItemList;
-class ItemList extends DatabaseItemList {
+use Concrete\Core\Gathering\Gathering;
 
-	protected $itemsPerPage = 24;
+class ItemList extends DatabaseItemList
+{
 
-	public function __construct(Gathering $ag) {
-		$this->setQuery('select gaiID from GatheringItems');
-		$this->filter('gaID', $ag->getGatheringID());
-		$this->filter('gaiIsDeleted', 0);
-	}
+    protected $itemsPerPage = 24;
 
-	public function filterByPublicDate($item, $operator) {
-		$this->filter('gaiPublicDateTime', $item, $operator);
-	}
+    public function __construct(Gathering $ag)
+    {
+        $this->setQuery('select gaiID from GatheringItems');
+        $this->filter('gaID', $ag->getGatheringID());
+        $this->filter('gaiIsDeleted', 0);
+    }
 
-	public function sortByDateDescending() {
-		$this->sortByMultiple('gaiBatchTimestamp desc', 'gaiBatchDisplayOrder asc');
-	}
+    public function filterByPublicDate($item, $operator)
+    {
+        $this->filter('gaiPublicDateTime', $item, $operator);
+    }
 
-	public function sortByDateAscending() {
-		$this->sortByMultiple('gaiBatchTimestamp asc', 'gaiBatchDisplayOrder desc');
-	}
+    public function sortByDateDescending()
+    {
+        $this->sortByMultiple('gaiBatchTimestamp desc', 'gaiBatchDisplayOrder asc');
+    }
 
-	public function get($itemsToGet = 10000, $offset = 0) {
-		$items = array();
-		$r = parent::get($itemsToGet, intval($offset));
-		foreach($r as $row) {
-			$ag = GatheringItem::getByID($row['gaiID']);
-			if (is_object($ag)) {
-				$items[] = $ag;
-			}
-		}
-		return $items;
-	}
+    public function sortByDateAscending()
+    {
+        $this->sortByMultiple('gaiBatchTimestamp asc', 'gaiBatchDisplayOrder desc');
+    }
+
+    public function get($itemsToGet = 10000, $offset = 0)
+    {
+        $items = array();
+        $r = parent::get($itemsToGet, intval($offset));
+        foreach ($r as $row) {
+            $ag = Item::getByID($row['gaiID']);
+            if (is_object($ag)) {
+                $items[] = $ag;
+            }
+        }
+        return $items;
+    }
 
 }

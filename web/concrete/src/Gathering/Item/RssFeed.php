@@ -1,6 +1,8 @@
 <?php
 namespace Concrete\Core\Gathering\Item;
 use Loader;
+use Concrete\Core\Gathering\DataSource\Configuration\Configuration;
+
 class RssFeed extends Item {
 
 	public function loadDetails() {}
@@ -11,12 +13,12 @@ class RssFeed extends Item {
 		return GatheringItem::getListByKey($ags, $mixed->get_link());
 	}
 	
-	public static function add(GatheringDataSourceConfiguration $configuration, $post) {
+	public static function add(Configuration $configuration, $post) {
 		$gathering = $configuration->getGatheringObject();
 		try {
 			// we wrap this in a try because it MIGHT fail if it's a duplicate
-			$item = parent::add($gathering, $configuration->getGatheringDataSourceObject(), $post->get_date('Y-m-d H:i:s'), $post->get_title(), $post->get_link());
-		} catch(Exception $e) {}
+			$item = parent::add($gathering, $configuration->getGatheringDataSourceObject(), $post->getDateCreated()->format('Y-m-d H:i:s'), $post->getTitle(), md5(trim($post->getLink())));
+		} catch(\Exception $e) {}
 
 		if (is_object($item)) {
 			$item->assignFeatureAssignments($post);
@@ -40,10 +42,10 @@ class RssFeed extends Item {
 		*/
 
 
-		$this->addFeatureAssignment('title', $post->get_title());
-		$this->addFeatureAssignment('date_time', $post->get_date('Y-m-d H:i:s'));
-		$this->addFeatureAssignment('link', $post->get_link());
-		$description = strip_tags($post->get_description());
+		$this->addFeatureAssignment('title', $post->getTitle());
+		$this->addFeatureAssignment('date_time', $post->getDateCreated()->format('Y-m-d H:i:s'));
+		$this->addFeatureAssignment('link', $post->getLink());
+		$description = strip_tags($post->getDescription());
 		if ($description != '') {
 			$this->addFeatureAssignment('description', $description);
 		}

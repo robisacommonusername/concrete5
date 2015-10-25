@@ -13,8 +13,8 @@ interface ApplicationAwareInterface
     /**
      * Set the application object
      *
-     * @param \Concrete\Core\Application\Application $application
+     * @param \Illuminate\Container\Container $application
      */
-    public function setApplication(Application $application);
+    public function setApplication(\Illuminate\Container\Container $application);
 
 }

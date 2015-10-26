@@ -5,6 +5,7 @@ use Concrete\Core\Application\ApplicationAwareInterface;
 use Concrete\Core\Application\ApplicationAwareTrait;
 use Concrete\Core\Http\Middleware\MiddlewareInterface;
 use Concrete\Core\Http\Middleware\MiddlewareTrait;
+use Concrete\Core\Utility\IPAddress;
 use Illuminate\Container\Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -75,7 +76,6 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      */
     protected function beginSession(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
     {
-        dd('session');
         $this->session->start();
         $request = $request->withAttribute('session', $this->session);
         $this->testSessionFixation($this->session);
@@ -86,7 +86,7 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
 
     protected function testSessionFixation($session)
     {
-        $iph = Core::make('helper/validation/ip');
+        $iph = $this->getApplication()->make('helper/validation/ip');
         $currentIp = $iph->getRequestIP();
 
         $ip = $session->get('CLIENT_REMOTE_ADDR');

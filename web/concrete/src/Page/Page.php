@@ -1769,12 +1769,12 @@ class Page extends Collection implements \Concrete\Core\Permission\ObjectInterfa
     public function getPageWrapperClass()
     {
         $pt = $this->getPageTypeObject();
-        
+
         $view = $this->getPageController()->getViewObject();
         if($view) {
             $ptm = $view->getPageTemplate();
         } else {
-            $ptm = $this->getPageTemplateObject();    
+            $ptm = $this->getPageTemplateObject();
         }
 
         $classes = array('ccm-page');

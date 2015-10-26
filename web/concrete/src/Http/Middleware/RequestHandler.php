@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @package Concrete\Core\Http
  */
-class RequestHandler
+class RequestHandler implements RequestHandlerInterface
 {
 
     /** @type RequestPipelineInterface */
@@ -20,7 +20,7 @@ class RequestHandler
     protected $middlewares = [];
 
     /** @type MiddlewareInterface */
-    protected $kernel;
+    protected $router;
 
     /**
      * RequestHandler constructor.
@@ -33,23 +33,23 @@ class RequestHandler
     }
 
     /**
-     * @return MiddlewareInterface
+     * {@inheritdoc}
      */
-    public function getKernel()
+    public function getRouter()
     {
-        return $this->kernel;
+        return $this->router;
     }
 
     /**
-     * @param MiddlewareInterface $kernel
+     * {@inheritdoc}
      */
-    public function setKernel($kernel)
+    public function setRouter($router)
     {
-        $this->kernel = $kernel;
+        $this->router = $router;
     }
 
     /**
-     * @return MiddlewareInterface[][]
+     * {@inheritdoc}
      */
     public function getMiddlewares()
     {
@@ -57,7 +57,7 @@ class RequestHandler
     }
 
     /**
-     * @param MiddlewareInterface[][] $middlewares
+     * {@inheritdoc}
      */
     public function setMiddlewares($middlewares)
     {
@@ -65,7 +65,7 @@ class RequestHandler
     }
 
     /**
-     * @return RequestPipelineInterface
+     * {@inheritdoc}
      */
     public function getPipeline()
     {
@@ -73,7 +73,7 @@ class RequestHandler
     }
 
     /**
-     * @param RequestPipelineInterface $pipeline
+     * {@inheritdoc}
      */
     public function setPipeline($pipeline)
     {
@@ -81,10 +81,7 @@ class RequestHandler
     }
 
     /**
-     * Add a middleware to the stack
-     *
-     * @param MiddlewareInterface $middleware The middleware
-     * @param int                 $priority   1 is first
+     * {@inheritdoc}
      */
     public function addMiddleware(MiddlewareInterface $middleware, $priority = 100)
     {
@@ -92,29 +89,32 @@ class RequestHandler
     }
 
     /**
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     *
-     * @return \Psr\Http\Message\ResponseInterface
+     * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, ResponseInterface $response)
+    public function handleRequest(RequestInterface $request, ResponseInterface $response, \Closure $after)
     {
         $handler = $this;
         $in = MiddlewareInterface::DIRECTION_IN;
         $out = MiddlewareInterface::DIRECTION_OUT;
-        $kernel = $this->getKernel();
+        $router = $this->getRouter();
 
         $do_pipe = function($direction, \Closure $then) use ($request, $response, $handler) {
             return $handler->pipeRequest($direction, $request, $response, $then);
         };
 
-        return $do_pipe($in, function($request, $response) use ($do_pipe, $out, $kernel) {
-            $kernel->setDirection($kernel::DIRECTION_NONE);
+        return $do_pipe($in, function($request, $response) use ($do_pipe, $out, $router, $after, $handler) {
+            if ($router) {
+                $router->setDirection($router::DIRECTION_NONE);
 
-            return $kernel->handleRequest($request, $response, function ($request, $response) use ($do_pipe, $out) {
-                return $do_pipe($out, function($request, $response) {
-                    return $response;
+                return $router->handleRequest($request, $response, function ($request, $response) use ($do_pipe, $out, $after, $handler) {
+                    return $handler->pipeRequest($out, $request, $response, function($request, $response) use ($after) {
+                        return $after($request, $response);
+                    });
                 });
+            }
+
+            return $do_pipe($out, function($request, $response) use ($after) {
+                return $after($request, $response);
             });
         });
     }
@@ -150,7 +150,8 @@ class RequestHandler
             ->send($request, $response)
             ->through($middlewares)
             ->then(function($request, $response) use ($middlewares, $pipeline, $then) {
-                return $then($request, $response);
+                $response = $then($request, $response);
+                return $response;
             });
     }
 

@@ -4,7 +4,11 @@ namespace Concrete\Core\Application;
 trait ApplicationAwareTrait
 {
 
-    protected $_application;
+    /**
+     * @type \Illuminate\Container\Container
+     * @read-only
+     */
+    private $_application;
 
     /**
      * Get the application object

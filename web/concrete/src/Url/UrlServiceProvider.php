@@ -51,7 +51,7 @@ class UrlServiceProvider extends Provider
                 return new RouteUrlResolver(\Core::make('url/resolver/path'), $generator, $list);
             });
 
-        $this->app->bind(
+        $this->app->bindShared(
             'url/manager',
             function () {
                 $manager = new ResolverManager('concrete.path', \Core::make('url/resolver/path'));
@@ -60,6 +60,9 @@ class UrlServiceProvider extends Provider
 
                 return $manager;
             });
+
+        $this->app->singleton('Concrete\Core\Url\Resolver\UrlResolverInterface', 'url/manager');
+        $this->app->singleton('Concrete\Core\Url\Resolver\Manager\ResolverManager', 'url/manager');
     }
 
 }

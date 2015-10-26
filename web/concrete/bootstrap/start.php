@@ -24,7 +24,6 @@ use Concrete\Core\Config\Repository\Repository as ConfigRepository;
 use Concrete\Core\File\Type\TypeList;
 use Concrete\Core\Foundation\ClassAliasList;
 use Concrete\Core\Foundation\Service\ProviderList;
-use Concrete\Core\Permission\Key\Key as PermissionKey;
 use Concrete\Core\Support\Facade\Facade;
 use Illuminate\Filesystem\Filesystem;
 use Patchwork\Utf8\Bootup as PatchworkUTF8;
@@ -44,6 +43,10 @@ PatchworkUTF8::initAll();
 /** @var Application $cms */
 $cms = require DIR_APPLICATION . '/bootstrap/start.php';
 $cms->instance('app', $cms);
+
+// Bind fully application qualified class names
+$cms->instance('Concrete\Core\Application\Application', $cms);
+$cms->instance('Illuminate\Container\Container', $cms);
 
 /**
  * ----------------------------------------------------------------------------
@@ -215,130 +218,36 @@ if ($cms->isRunThroughCommandLineInterface()) {
  */
 include DIR_APPLICATION . '/bootstrap/app.php';
 
-
 /**
- * ----------------------------------------------------------------------------
- * Set trusted proxies and headers for the request
- * ----------------------------------------------------------------------------
+ * Enable PSR-7 http middleware stack
  */
+$request = Zend\Diactoros\ServerRequestFactory::fromGlobals();
+$response = $cms->make('Zend\Diactoros\Response');
 
-if($proxyHeaders = $config->get('concrete.security.trusted_proxies.headers')){
-    foreach($proxyHeaders as $key => $value) {
-        Request::setTrustedHeaderName($key, $value);
-    }
+/** @type \Concrete\Core\Http\Middleware\RequestHandler $handler */
+$handler = $cms->make('Concrete\Core\Http\Middleware\RequestHandler');
+
+// Set Middlewares
+$middlewares = $cms['config']->get('http.middleware');
+foreach ($middlewares as $middleware) {
+    list($class, $priority) = $middleware;
+    $handler->addMiddleware($cms->make($class), $priority);
 }
 
-if($trustedProxiesIps = $config->get('concrete.security.trusted_proxies.ips')) {
-    Request::setTrustedProxies($trustedProxiesIps);
+// Set Router
+if ($router = $cms['config']->get('http.router')) {
+    $handler->setRouter($cms->make($router));
 }
 
-/**
- * ----------------------------------------------------------------------------
- * Obtain the Request object.
- * ----------------------------------------------------------------------------
- */
-$request = Request::getInstance();
+// Bootstrap diactoros server
+$server = $cms->make('Zend\Diactoros\Server', [
+    function($request, $response) use ($handler) {
+        return $handler->handleRequest($request, $response, function($request, $response) {
+            return $response;
+        });
+    }, $request, $response]);
 
-/**
- * ----------------------------------------------------------------------------
- * If we haven't installed, then we need to reroute. If we have, and we're
- * on the install page, and we haven't installed, then we need to dispatch
- * early and exit.
- * ----------------------------------------------------------------------------
- */
-if (!$cms->isInstalled()) {
-    if (!$cms->isRunThroughCommandLineInterface() && !$request->matches('/install/*') && $request->getPath(
-        ) != '/install'
-    ) {
-        $response = Redirect::to('/install');
-    }
-    else {
-        $response = $cms->dispatch($request);
-    }
-    $response->send();
-    $cms->shutdown();
-}
+// Begin Listening
+$server->listen();
 
-/**
- * ----------------------------------------------------------------------------
- * Check the page cache in case we need to return a result early.
- * ----------------------------------------------------------------------------
- */
-$response = $cms->checkPageCache($request);
-if ($response) {
-    $response->send();
-    $cms->shutdown();
-}
-
-/**
- * ----------------------------------------------------------------------------
- * Now we load all installed packages, and register their package autoloaders.
- * ----------------------------------------------------------------------------
- */
-$cms->setupPackageAutoloaders();
-
-/**
- * ----------------------------------------------------------------------------
- * Load preprocess items
- * ----------------------------------------------------------------------------
- */
-require DIR_BASE_CORE . '/bootstrap/preprocess.php';
-
-/**
- * ----------------------------------------------------------------------------
- * Set the active language for the site, based either on the site locale, or the
- * current user record. This can be changed later as well, during runtime.
- * Start localization library.
- * ----------------------------------------------------------------------------
- */
-$u = new User();
-$lan = $u->getUserLanguageToDisplay();
-$loc = Localization::getInstance();
-$loc->setLocale($lan);
-
-/**
- * Handle automatic updating
- */
-$cms->handleAutomaticUpdates();
-
-/**
- * ----------------------------------------------------------------------------
- * Now that we have languages out of the way, we can run our package on_start
- * methods
- * ----------------------------------------------------------------------------
- */
-$cms->setupPackages();
-
-/**
- * ----------------------------------------------------------------------------
- * Load all permission keys into our local cache.
- * ----------------------------------------------------------------------------
- */
-PermissionKey::loadAll();
-
-/**
- * ----------------------------------------------------------------------------
- * Fire an event for intercepting the dispatch
- * ----------------------------------------------------------------------------
- */
-\Events::dispatch('on_before_dispatch');
-
-/**
- * ----------------------------------------------------------------------------
- * Get the response to the current request
- * ----------------------------------------------------------------------------
- */
-$response = $cms->dispatch($request);
-/**
- * ----------------------------------------------------------------------------
- * Send it to the user
- * ----------------------------------------------------------------------------
- */
-$response->send();
-
-/**
- * ----------------------------------------------------------------------------
- * Return the CMS object.
- * ----------------------------------------------------------------------------
- */
 return $cms;

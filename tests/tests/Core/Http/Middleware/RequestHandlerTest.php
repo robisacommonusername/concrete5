@@ -32,31 +32,45 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
             return $next($request, $response);
         });
 
-        // Kernel
-        $kernel = new ClosureMiddleware(function(
+        // Router
+        $router = new ClosureMiddleware(function(
             ClosureMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
             $order++;
 
-            $call_order[] = "kernel {$order} {$middlware->getDirection()}";
+            $call_order[] = "router {$order} {$middlware->getDirection()}";
             return $next($request, $response);
         });
 
         $request_handler = new RequestHandler(new MiddlewarePipeline());
         $request_handler->addMiddleware($middleware1, 1);
         $request_handler->addMiddleware($middleware2, 2);
-        $request_handler->setKernel($kernel);
+        $request_handler->setRouter($router);
 
         $request_handler->handleRequest(
-            $this->getMock('\Psr\Http\Message\ServerRequestInterface'),
-            $this->getMock('\Psr\Http\Message\ResponseInterface'));
+            $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface'),
+            $response = $this->getMock('\Psr\Http\Message\ResponseInterface'));
 
         $this->assertEquals([
             'first 1 1',
             'second 2 1',
-            'kernel 3 0',
+            'router 3 0',
             'second 4 2',
             'first 5 2'
         ], $call_order);
+
+        $order = 0;
+        $call_order = [];
+        $request_handler->setRouter(null);
+
+        $request_handler->handleRequest($request, $response);
+
+        $this->assertEquals([
+            'first 1 1',
+            'second 2 1',
+            'second 3 2',
+            'first 4 2'
+        ], $call_order);
+
     }
 
     public function testSetters()

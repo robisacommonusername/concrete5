@@ -65,10 +65,12 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
         if ($app instanceof Application) {
             $legacy_request = $this->request_factory->createRequest($request);
             if ($cache_response = $this->getApplication()->checkPageCache($legacy_request)) {
+                dd($cache_response);
                 return $this->response_factory->createResponse($cache_response);
             }
         }
 
+        dd('not cached');
         return $next($request, $response);
     }
 

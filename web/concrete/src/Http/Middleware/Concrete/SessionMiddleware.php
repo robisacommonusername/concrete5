@@ -75,10 +75,31 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      */
     protected function beginSession(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
     {
+        dd('session');
         $this->session->start();
         $request = $request->withAttribute('session', $this->session);
+        $this->testSessionFixation($this->session);
 
         return $next($request, $response);
+    }
+
+
+    protected function testSessionFixation($session)
+    {
+        $iph = Core::make('helper/validation/ip');
+        $currentIp = $iph->getRequestIP();
+
+        $ip = $session->get('CLIENT_REMOTE_ADDR');
+        $agent = $session->get('CLIENT_HTTP_USER_AGENT');
+        if ($ip && $ip != $currentIp->getIp(IPAddress::FORMAT_IP_STRING) || $agent && $agent != $_SERVER['HTTP_USER_AGENT']) {
+            $session->invalidate();
+        }
+        if (!$ip && $currentIp !== false) {
+            $session->set('CLIENT_REMOTE_ADDR', $currentIp->getIp(IPAddress::FORMAT_IP_STRING));
+        }
+        if (!$agent && isset($_SERVER['HTTP_USER_AGENT'])) {
+            $session->set('CLIENT_HTTP_USER_AGENT', $_SERVER['HTTP_USER_AGENT']);
+        }
     }
 
 }

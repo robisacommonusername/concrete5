@@ -22,21 +22,21 @@ interface RequestHandlerInterface
     /**
      * Set the central router middleware
      *
-     * @param MiddlewareInterface $router
+     * @param MiddlewareInterface|callable $router
      */
     public function setRouter($router);
 
     /**
      * Get a list of middlewares [$priority => [ $middleware_1, $middleware2 ]];
      *
-     * @return MiddlewareInterface[][]
+     * @return MiddlewareInterface[][]|callable[][]
      */
     public function getMiddlewares();
 
     /**
      * Set the list of middlewares
      *
-     * @param MiddlewareInterface[][] $middlewares
+     * @param MiddlewareInterface[][]|callable[][] $middlewares
      */
     public function setMiddlewares($middlewares);
 
@@ -57,18 +57,18 @@ interface RequestHandlerInterface
     /**
      * Add a middleware to the stack
      *
-     * @param MiddlewareInterface $middleware The middleware
+     * @param MiddlewareInterface|callable $middleware The middleware
      * @param int $priority 1 is first
      */
-    public function addMiddleware(MiddlewareInterface $middleware, $priority = 100);
+    public function addMiddleware(callable $middleware, $priority = 100);
 
     /**
      * Handle a request
      *
      * @param \Psr\Http\Message\RequestInterface  $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure                            $then function($request, $response): $response;
+     * @param callable                            $then function($request, $response): $response;
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(RequestInterface $request, ResponseInterface $response, \Closure $then);
+    public function handleRequest(RequestInterface $request, ResponseInterface $response, callable $then);
 }

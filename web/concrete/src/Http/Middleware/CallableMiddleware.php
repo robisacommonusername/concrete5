@@ -10,21 +10,21 @@ use Psr\Http\Message\ServerRequestInterface;
  * A middleware that delegates handling to a closure
  * @package Concrete\Core\Http\Middleware
  */
-class ClosureMiddleware implements MiddlewareInterface
+class CallableMiddleware implements MiddlewareInterface
 {
 
     use MiddlewareTrait;
 
     /**
-     * @type \Closure The handleRequest closure
+     * @type callable The handleRequest closure
      */
     protected $closure;
 
     /**
-     * ClosureMiddleware constructor.
-     * @param \Closure $closure
+     * CallableMiddleware constructor.
+     * @param callable $closure
      */
-    public function __construct(\Closure $closure)
+    public function __construct(callable $closure)
     {
         $this->closure = $closure;
     }
@@ -35,10 +35,10 @@ class ClosureMiddleware implements MiddlewareInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $closure = $this->closure;
         return $closure($this, $request, $response, $next);

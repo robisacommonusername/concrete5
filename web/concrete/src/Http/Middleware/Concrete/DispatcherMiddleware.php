@@ -5,6 +5,7 @@ namespace Concrete\Core\Http\Middleware\Concrete;
 use Concrete\Core\Application\Application;
 use Concrete\Core\Application\ApplicationAwareInterface;
 use Concrete\Core\Application\ApplicationAwareTrait;
+use Concrete\Core\Http\Factory\ConcreteRequestFactory;
 use Concrete\Core\Http\Middleware\MiddlewareInterface;
 use Concrete\Core\Http\Middleware\MiddlewareTrait;
 use Concrete\Core\Http\Request;
@@ -29,10 +30,10 @@ class DispatcherMiddleware implements MiddlewareInterface, ApplicationAwareInter
      * CacheMiddleware constructor.
      *
      * @param \Concrete\Core\Application\Application $application
-     * @param \Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory $request_factory
+     * @param \Concrete\Core\Http\Factory\ConcreteRequestFactory $request_factory
      * @param \Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory $response_factory
      */
-    public function __construct(Application $application, HttpFoundationFactory $request_factory, DiactorosFactory $response_factory)
+    public function __construct(Application $application, ConcreteRequestFactory $request_factory, DiactorosFactory $response_factory)
     {
         $this->setApplication($application);
         $this->request_factory = $request_factory;
@@ -45,10 +46,10 @@ class DispatcherMiddleware implements MiddlewareInterface, ApplicationAwareInter
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $app = $this->getApplication();
         if ($this->getDirection() == $this::DIRECTION_NONE && $app instanceof Application) {

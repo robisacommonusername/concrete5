@@ -5,6 +5,7 @@ namespace Concrete\Core\Http\Middleware\Concrete;
 use Concrete\Core\Application\Application;
 use Concrete\Core\Application\ApplicationAwareInterface;
 use Concrete\Core\Application\ApplicationAwareTrait;
+use Concrete\Core\Http\Factory\ConcreteRequestFactory;
 use Concrete\Core\Http\Middleware\MiddlewareInterface;
 use Concrete\Core\Http\Middleware\MiddlewareTrait;
 use Psr\Http\Message\ResponseInterface;
@@ -26,10 +27,10 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
     /**
      * CacheMiddleware constructor.
      * @param \Concrete\Core\Application\Application $application
-     * @param \Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory $request_factory
+     * @param \Concrete\Core\Http\Factory\ConcreteRequestFactory $request_factory
      * @param \Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory $response_factory
      */
-    public function __construct(Application $application, HttpFoundationFactory $request_factory, DiactorosFactory $response_factory)
+    public function __construct(Application $application, ConcreteRequestFactory $request_factory, DiactorosFactory $response_factory)
     {
         $this->setApplication($application);
 
@@ -43,10 +44,10 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         switch ($this->getDirection()) {
             case $this::DIRECTION_IN:
@@ -59,7 +60,7 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
     /**
      * Send the cached response at the begining of the request if we have one
      */
-    public function checkSendCache($request, $response, \Closure $next)
+    public function checkSendCache($request, $response, callable $next)
     {
         $app = $this->getApplication();
         if ($app instanceof Application) {
@@ -72,7 +73,7 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
         return $next($request, $response);
     }
 
-    public function handleStorage($request, $response, \Closure $next)
+    public function handleStorage($request, $response, callable $next)
     {
         // Handle storing things on the response to the cache
         return $next($request, $response);

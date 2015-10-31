@@ -3,6 +3,7 @@
 namespace tests\Core\Http\Middleware\Concrete;
 
 use Concrete\Core\Http\Middleware\Concrete\SessionMiddleware;
+use Concrete\Core\Utility\IPAddress;
 use Zend\Diactoros\Response;
 
 class SessionMiddlewareTest extends \PHPUnit_Framework_TestCase
@@ -15,7 +16,10 @@ class SessionMiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $session = $this->getMock('\Symfony\Component\HttpFoundation\Session\Session');
         $container = $this->getMock('\Illuminate\Container\Container');
-        $middleware = new SessionMiddleware($container, $session);
+        $service = $this->getMock('\Concrete\Core\Permission\IPService');
+        $service->method('getRequestIP')->willReturn($this->getMock('\Concrete\Core\Utility\IPAddress'));
+
+        $middleware = new SessionMiddleware($container, $session, $service);
         $middleware->setDirection($middleware::DIRECTION_IN);
 
         $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface');
@@ -28,7 +32,7 @@ class SessionMiddlewareTest extends \PHPUnit_Framework_TestCase
         $response = $this->getMock('\Psr\Http\Message\ResponseInterface');
 
         $called = false;
-        $middleware->handleRequest($request, $response, function($request, $response) use (&$called) {
+        $middleware($request, $response, function($request, $response) use (&$called) {
             $called = true;
         });
 
@@ -46,12 +50,13 @@ class SessionMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('\Psr\Http\Message\ResponseInterface');
         $container = $this->getMock('\Illuminate\Container\Container');
+        $service = $this->getMock('\Concrete\Core\Permission\IPService');
 
-        $middleware = new SessionMiddleware($container, $session);
+        $middleware = new SessionMiddleware($container, $session, $service);
         $middleware->setDirection($middleware::DIRECTION_OUT);
 
         $called = false;
-        $middleware->handleRequest($request, $response, function($request, $response) use (&$called) {
+        $middleware($request, $response, function($request, $response) use (&$called) {
             $called = true;
         });
 
@@ -67,11 +72,12 @@ class SessionMiddlewareTest extends \PHPUnit_Framework_TestCase
         $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface');
         $response = $this->getMock('\Psr\Http\Message\ResponseInterface');
         $container = $this->getMock('\Illuminate\Container\Container');
+        $service = $this->getMock('\Concrete\Core\Permission\IPService');
 
-        $middleware = new SessionMiddleware($container, $session);
+        $middleware = new SessionMiddleware($container, $session, $service);
         $middleware->setDirection($middleware::DIRECTION_NONE);
 
-        $middleware->handleRequest($request, $response, function($request, $response) {});
+        $middleware($request, $response, function($request, $response) {});
     }
 
 }

@@ -52,15 +52,15 @@ class MiddlewarePipeline implements RequestPipelineInterface
     /**
      * Run the pipeline with a final handler
      *
-     * @param \Closure $then (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
+     * @param callable $then (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
      *                       SHOULD return \Psr\Http\Message\ResponseInterface
      * @return ResponseInterface
      */
-    public function then(\Closure $then)
+    public function then(callable $then)
     {
         $pipes = array_reverse($this->pipes);
 
-        /** @type \Closure $linked_closure */
+        /** @type callable $linked_closure */
         $linked_closure = array_reduce($pipes, $this->getIterator(), $this->getInitial($then));
 
         return $linked_closure($this->request, $this->response);
@@ -68,22 +68,24 @@ class MiddlewarePipeline implements RequestPipelineInterface
 
     /**
      * Get the iterator closure, this wraps every item in the list and injects the
-     * @return \Closure
+     * @return callable
      */
     protected function getIterator()
     {
-        return function (\Closure $next, RequestPipeInterface $pipe) {
+        return function (callable $next, callable $pipe) {
             return function (ServerRequestInterface $request, ResponseInterface $response) use ($next, $pipe) {
-                return $pipe->handleRequest($request, $response, $next);
+                return $pipe($request, $response, $next);
             };
         };
     }
+
     /**
      * The initial closure
      *
-     * @return \Closure
+     * @param callable $then
+     * @return callable
      */
-    protected function getInitial(\Closure $then)
+    protected function getInitial(callable $then)
     {
         return function(ServerRequestInterface $request, ResponseInterface $response) use ($then) {
             return $then($request, $response);

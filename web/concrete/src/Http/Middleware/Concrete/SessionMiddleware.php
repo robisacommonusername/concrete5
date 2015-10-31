@@ -5,6 +5,7 @@ use Concrete\Core\Application\ApplicationAwareInterface;
 use Concrete\Core\Application\ApplicationAwareTrait;
 use Concrete\Core\Http\Middleware\MiddlewareInterface;
 use Concrete\Core\Http\Middleware\MiddlewareTrait;
+use Concrete\Core\Permission\IPService;
 use Concrete\Core\Utility\IPAddress;
 use Illuminate\Container\Container;
 use Psr\Http\Message\ResponseInterface;
@@ -19,15 +20,20 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
     /** @type \Symfony\Component\HttpFoundation\Session\Session */
     protected $session;
 
+    /** @type \Concrete\Core\Permission\IPService */
+    protected $ip_helper;
+
     /**
      * SessionMiddleware constructor.
      * @param \Illuminate\Container\Container $application
      * @param \Symfony\Component\HttpFoundation\Session\Session $session
+     * @param \Concrete\Core\Permission\IPService $ip_helper
      */
-    public function __construct(Container $application, SymfonySession $session)
+    public function __construct(Container $application, SymfonySession $session, IPService $ip_helper)
     {
         $this->setApplication($application);
         $this->session = $session;
+        $this->ip_helper = $ip_helper;
     }
 
     /**
@@ -36,10 +42,10 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         switch ($this->getDirection()) {
             case $this::DIRECTION_IN:
@@ -56,10 +62,10 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface $next($request, $response);
      */
-    protected function endSession(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    protected function endSession(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $this->session->save();
 
@@ -71,10 +77,10 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return mixed
      */
-    protected function beginSession(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    protected function beginSession(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $this->session->start();
         $request = $request->withAttribute('session', $this->session);
@@ -86,8 +92,7 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
 
     protected function testSessionFixation($session)
     {
-        $iph = $this->getApplication()->make('helper/validation/ip');
-        $currentIp = $iph->getRequestIP();
+        $currentIp = $this->ip_helper->getRequestIP();
 
         $ip = $session->get('CLIENT_REMOTE_ADDR');
         $agent = $session->get('CLIENT_HTTP_USER_AGENT');

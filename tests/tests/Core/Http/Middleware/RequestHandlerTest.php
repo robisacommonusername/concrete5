@@ -2,7 +2,7 @@
 
 namespace tests\Core\Http\Middleware;
 
-use Concrete\Core\Http\Middleware\ClosureMiddleware;
+use Concrete\Core\Http\Middleware\CallableMiddleware;
 use Concrete\Core\Http\Middleware\Pipeline\MiddlewarePipeline;
 use Concrete\Core\Http\Middleware\RequestHandler;
 
@@ -15,8 +15,8 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
         $call_order = [];
 
         // First middleware
-        $middleware1 = new ClosureMiddleware(function(
-            ClosureMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
+        $middleware1 = new CallableMiddleware(function(
+            CallableMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
             $order++;
 
             $call_order[] = "first {$order} {$middlware->getDirection()}";
@@ -24,8 +24,8 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
         });
 
         // Second middleware
-        $middleware2 = new ClosureMiddleware(function(
-            ClosureMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
+        $middleware2 = new CallableMiddleware(function(
+            CallableMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
             $order++;
 
             $call_order[] = "second {$order} {$middlware->getDirection()}";
@@ -33,8 +33,8 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
         });
 
         // Router
-        $router = new ClosureMiddleware(function(
-            ClosureMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
+        $router = new CallableMiddleware(function(
+            CallableMiddleware $middlware, $request, $response, $next) use (&$order, &$call_order) {
             $order++;
 
             $call_order[] = "router {$order} {$middlware->getDirection()}";
@@ -71,6 +71,40 @@ class RequestHandlerTest extends \PHPUnit_Framework_TestCase
             'first 4 2'
         ], $call_order);
 
+    }
+
+    public function testAnonymousMiddleware()
+    {
+        $called = 0;
+        $middleware = function($request, $response, $next) use (&$called) {
+            $called++;
+            return $next($request, $response);
+        };
+
+        $handler = new RequestHandler(new MiddlewarePipeline());
+        $handler->addMiddleware($middleware);
+        $handler->handleRequest(
+            $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface'),
+            $response = $this->getMock('\Psr\Http\Message\ResponseInterface'));
+
+        $this->assertEquals(2, $called);
+    }
+
+    public function testAnonymousRouter()
+    {
+        $called = 0;
+        $middleware = function($request, $response, $next) use (&$called) {
+            $called++;
+            return $next($request, $response);
+        };
+
+        $handler = new RequestHandler(new MiddlewarePipeline());
+        $handler->setRouter($middleware);
+        $handler->handleRequest(
+            $request = $this->getMock('\Psr\Http\Message\ServerRequestInterface'),
+            $response = $this->getMock('\Psr\Http\Message\ResponseInterface'));
+
+        $this->assertEquals(1, $called);
     }
 
     public function testSetters()

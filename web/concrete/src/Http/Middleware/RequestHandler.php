@@ -16,10 +16,10 @@ class RequestHandler implements RequestHandlerInterface
     /** @type RequestPipelineInterface */
     protected $pipeline;
 
-    /** @type MiddlewareInterface[][] */
+    /** @type callable[][]|MiddlewareInterface[][] */
     protected $middlewares = [];
 
-    /** @type MiddlewareInterface */
+    /** @type callable|MiddlewareInterface */
     protected $router;
 
     /**
@@ -83,7 +83,7 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function addMiddleware(MiddlewareInterface $middleware, $priority = 100)
+    public function addMiddleware(callable $middleware, $priority = 100)
     {
         $this->middlewares[$priority][] = $middleware;
     }
@@ -91,30 +91,40 @@ class RequestHandler implements RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function handleRequest(RequestInterface $request, ResponseInterface $response, \Closure $after)
+    public function handleRequest(RequestInterface $request, ResponseInterface $response, callable $after = null)
     {
         $handler = $this;
         $in = MiddlewareInterface::DIRECTION_IN;
         $out = MiddlewareInterface::DIRECTION_OUT;
         $router = $this->getRouter();
 
-        $do_pipe = function($direction, \Closure $then) use ($request, $response, $handler) {
+        $do_pipe = function($direction, callable $then) use ($request, $response, $handler) {
             return $handler->pipeRequest($direction, $request, $response, $then);
         };
 
         return $do_pipe($in, function($request, $response) use ($do_pipe, $out, $router, $after, $handler) {
             if ($router) {
-                $router->setDirection($router::DIRECTION_NONE);
+                if ($router instanceof MiddlewareInterface) {
+                    $router->setDirection($router::DIRECTION_NONE);
+                }
 
-                return $router->handleRequest($request, $response, function ($request, $response) use ($do_pipe, $out, $after, $handler) {
+                return $router($request, $response, function ($request, $response) use ($do_pipe, $out, $after, $handler) {
                     return $handler->pipeRequest($out, $request, $response, function($request, $response) use ($after) {
-                        return $after($request, $response);
+                        if ($after) {
+                            return $after($request, $response);
+                        } else {
+                            return $response;
+                        }
                     });
                 });
             }
 
             return $do_pipe($out, function($request, $response) use ($after) {
-                return $after($request, $response);
+                if ($after) {
+                    return $after($request, $response);
+                } else {
+                    return $response;
+                }
             });
         });
     }
@@ -125,10 +135,10 @@ class RequestHandler implements RequestHandlerInterface
      * @param int                                 $direction MiddlewareInterface::DIRECTION_*
      * @param \Psr\Http\Message\RequestInterface  $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure                            $then
+     * @param callable                            $then
      * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function pipeRequest($direction, RequestInterface $request, ResponseInterface $response, \Closure $then)
+    protected function pipeRequest($direction, RequestInterface $request, ResponseInterface $response, callable $then)
     {
         $middlewares_priorities = $this->middlewares;
         $pipeline = $this->pipeline;
@@ -141,7 +151,10 @@ class RequestHandler implements RequestHandlerInterface
         $middlewares = [];
         foreach ($middlewares_priorities as $middleware_group) {
             foreach ($middleware_group as $middleware) {
-                $middleware->setDirection($direction);
+
+                if ($middleware instanceof MiddlewareInterface) {
+                    $middleware->setDirection($direction);
+                }
             }
             $middlewares = array_merge($middlewares, $middleware_group);
         }

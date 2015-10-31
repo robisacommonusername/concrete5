@@ -37,10 +37,10 @@ class InstallMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $app = $this->getApplication();
         $is_install_path = substr($request->getUri()->getPath(), 0, 8) == '/install';

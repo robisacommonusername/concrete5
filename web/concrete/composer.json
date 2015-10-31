@@ -22,7 +22,7 @@
     "league/flysystem": "1.0.*",
     "symfony/event-dispatcher": "2.5.*",
     "symfony/serializer": "2.5.*",
-    "illuminate/container": "4.1.*",
+    "illuminate/container": "4.2.*",
     "illuminate/config": "4.1.*",
     "patchwork/utf8": "1.1.x-dev",
     "oyejorge/less.php": "v1.7.0.1",
@@ -56,7 +56,10 @@
     "oryzone/oauth-user-data": "~1.0@dev",
     "mlocati/concrete5-translation-library": "1.4.2",
     "league/url": "3.3.*",
-    "concrete5/doctrine-xml": "1.0.0"
+    "concrete5/doctrine-xml": "1.0.0",
+    "psr/http-message": "^1.0",
+    "zendframework/zend-diactoros": "^1.1",
+    "symfony/psr-http-message-bridge": "^0.2.0"
   },
   "require-dev": {
     "concrete5/documentation_generator": "1.0-beta3"

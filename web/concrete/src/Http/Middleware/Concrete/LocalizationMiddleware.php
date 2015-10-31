@@ -30,10 +30,10 @@ class LocalizationMiddleware implements MiddlewareInterface, ApplicationAwareInt
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param \Closure $next
+     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function handleRequest(ServerRequestInterface $request, ResponseInterface $response, \Closure $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         if ($this->getDirection() == $this::DIRECTION_IN) {
             $u = new User();

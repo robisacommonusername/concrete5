@@ -31,10 +31,10 @@ interface RequestPipelineInterface
     /**
      * Run the pipeline with a final handler
      *
-     * @param \Closure $then (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
+     * @param callable $then (\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response)
      *                       SHOULD return \Psr\Http\Message\ResponseInterface
      * @return ResponseInterface
      */
-    public function then(\Closure $then);
+    public function then(callable $then);
 
 }

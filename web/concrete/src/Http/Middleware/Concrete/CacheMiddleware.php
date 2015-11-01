@@ -16,7 +16,7 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
 {
 
-    use MiddlewareTrait, ApplicationAwareTrait;
+    use ApplicationAwareTrait;
 
     /** @type \Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory */
     protected $request_factory;
@@ -49,18 +49,22 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        switch ($this->getDirection()) {
-            case $this::DIRECTION_IN:
-                return $this->checkSendCache($request, $response, $next);
-            case $this::DIRECTION_OUT:
-                return $this->handleStorage($request, $response, $next);
+        // If we have a cache entry for this request, lets make a response and return it.
+        if ($response = $this->getCacheResponse($request, $response)) {
+            return [$request, $response];
         }
+        list($request, $response) = $next($request, $response);
+
+        // on the way out, lets check to see if we can cache the response against the request.
+        $this->handleStorage($request, $response);
+
+        return [$request, $response];
     }
 
     /**
      * Send the cached response at the begining of the request if we have one
      */
-    public function checkSendCache($request, $response, callable $next)
+    private function getCacheResponse($request, $response)
     {
         $app = $this->getApplication();
         if ($app instanceof Application) {
@@ -69,14 +73,11 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
                 return $this->response_factory->createResponse($cache_response);
             }
         }
-
-        return $next($request, $response);
     }
 
-    public function handleStorage($request, $response, callable $next)
+    private function handleStorage($request, $response, callable $next)
     {
         // Handle storing things on the response to the cache
-        return $next($request, $response);
     }
 
 }

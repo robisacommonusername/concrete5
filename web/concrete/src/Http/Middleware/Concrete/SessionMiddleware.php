@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Session\Session as SymfonySession;
 class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterface
 {
 
-    use MiddlewareTrait, ApplicationAwareTrait;
+    use ApplicationAwareTrait;
 
     /** @type \Symfony\Component\HttpFoundation\Session\Session */
     protected $session;
@@ -37,24 +37,19 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
     }
 
     /**
-     * Handle a request and a response
-     * This method will either return $next($request, $response); or will create and return an error response like a 404
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable $next
-     * @return \Psr\Http\Message\ResponseInterface
+     * {@inheritdoc}
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        switch ($this->getDirection()) {
-            case $this::DIRECTION_IN:
-                return $this->beginSession($request, $response, $next);
-            case $this::DIRECTION_OUT:
-                return $this->endSession($request, $response, $next);
-        }
+        // Start the session
+        $this->beginSession($request, $response);
 
-        throw new \RuntimeException('This middleware can only be executed on the way in or the way out.');
+        list($request, $response) = $next($request->withAttribute('session', $this->session), $response);
+
+        // End the session
+        $this->endSession($request, $response);
+
+        return [$request, $response];
     }
 
     /**
@@ -62,14 +57,11 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable $next
      * @return \Psr\Http\Message\ResponseInterface $next($request, $response);
      */
-    protected function endSession(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    private function endSession(ServerRequestInterface $request, ResponseInterface $response)
     {
         $this->session->save();
-
-        return $next($request, $response);
     }
 
     /**
@@ -77,20 +69,19 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      *
      * @param \Psr\Http\Message\ServerRequestInterface $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable $next
      * @return mixed
      */
-    protected function beginSession(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    private function beginSession(ServerRequestInterface $request, ResponseInterface $response)
     {
         $this->session->start();
-        $request = $request->withAttribute('session', $this->session);
         $this->testSessionFixation($this->session);
-
-        return $next($request, $response);
     }
 
-
-    protected function testSessionFixation($session)
+    /**
+     * Test the session for fixation
+     * @param $session
+     */
+    private function testSessionFixation($session)
     {
         $currentIp = $this->ip_helper->getRequestIP();
 

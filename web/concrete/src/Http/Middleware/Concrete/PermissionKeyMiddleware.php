@@ -14,7 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class PermissionKeyMiddleware implements MiddlewareInterface, ApplicationAwareInterface
 {
 
-    use MiddlewareTrait, ApplicationAwareTrait;
+    use ApplicationAwareTrait;
 
     /**
      * CacheMiddleware constructor.
@@ -25,13 +25,7 @@ class PermissionKeyMiddleware implements MiddlewareInterface, ApplicationAwareIn
     }
 
     /**
-     * Handle a request and a response
-     * This method will either return $next($request, $response); or will create and return an error response like a 404
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable $next
-     * @return \Psr\Http\Message\ResponseInterface
+     * {@inheritdoc}
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {

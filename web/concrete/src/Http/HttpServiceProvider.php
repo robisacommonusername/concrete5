@@ -16,6 +16,11 @@ class HttpServiceProvider extends ServiceProvider {
 			$app->singleton($key, $value);
 		}
 
+		$app->singleton('Concrete\Core\Http\RequestDispatcher');
+		$app->bind('Concrete\Core\Http\RequestDispatcherInterface', 'Concrete\Core\Http\RequestDispatcher');
+		$app->singleton('Concrete\Core\Http\RequestHandler');
+		$app->bind('Concrete\Core\Http\RequestHandlerInterface', 'Concrete\Core\Http\RequestHandler');
+
 		$app->bind(
 			'Concrete\Core\Http\Middleware\Pipeline\RequestPipelineInterface',
 			'Concrete\Core\Http\Middleware\Pipeline\MiddlewarePipeline');

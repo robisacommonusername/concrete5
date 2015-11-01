@@ -16,7 +16,7 @@ use Zend\Diactoros\Response\RedirectResponse;
 class InstallMiddleware implements MiddlewareInterface, ApplicationAwareInterface
 {
 
-    use MiddlewareTrait, ApplicationAwareTrait;
+    use ApplicationAwareTrait;
 
     /** @type \Concrete\Core\Url\Resolver\Manager\ResolverManager */
     protected $url;
@@ -32,13 +32,7 @@ class InstallMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
     }
 
     /**
-     * Handle a request and a response
-     * This method will either return $next($request, $response); or will create and return an error response like a 404
-     *
-     * @param \Psr\Http\Message\ServerRequestInterface $request
-     * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable $next
-     * @return \Psr\Http\Message\ResponseInterface
+     * {@inheritdoc}
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
@@ -49,7 +43,7 @@ class InstallMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
             return $next($request, $response);
         }
 
-        return new RedirectResponse($this->url->resolve(['/install']));
+        return [$request, new RedirectResponse($this->url->resolve(['/install']))];
     }
 
 }

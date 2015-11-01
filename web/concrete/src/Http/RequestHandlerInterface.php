@@ -1,5 +1,5 @@
 <?php
-namespace Concrete\Core\Http\Middleware;
+namespace Concrete\Core\Http;
 
 use Concrete\Core\Http\Middleware\Pipeline\RequestPipelineInterface;
 use Psr\Http\Message\RequestInterface;
@@ -12,19 +12,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 interface RequestHandlerInterface
 {
-    /**
-     * Get the central router middleware.
-     *
-     * @return MiddlewareInterface|null
-     */
-    public function getRouter();
-
-    /**
-     * Set the central router middleware
-     *
-     * @param MiddlewareInterface|callable $router
-     */
-    public function setRouter($router);
 
     /**
      * Get a list of middlewares [$priority => [ $middleware_1, $middleware2 ]];
@@ -64,11 +51,13 @@ interface RequestHandlerInterface
 
     /**
      * Handle a request
+     * If a `$then` is provided, it MUST return [ RequestInterface $request, ResponseInterface $response ];
      *
      * @param \Psr\Http\Message\RequestInterface  $request
      * @param \Psr\Http\Message\ResponseInterface $response
-     * @param callable                            $then function($request, $response): $response;
+     * @param callable                            $then function($request, $response): [$request, $response];
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function handleRequest(RequestInterface $request, ResponseInterface $response, callable $then);
+
 }

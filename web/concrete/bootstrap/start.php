@@ -27,6 +27,8 @@ use Concrete\Core\Foundation\Service\ProviderList;
 use Concrete\Core\Support\Facade\Facade;
 use Illuminate\Filesystem\Filesystem;
 use Patchwork\Utf8\Bootup as PatchworkUTF8;
+use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * ----------------------------------------------------------------------------
@@ -218,33 +220,20 @@ if ($cms->isRunThroughCommandLineInterface()) {
  */
 include DIR_APPLICATION . '/bootstrap/app.php';
 
-/**
- * Enable PSR-7 http middleware stack
- */
-$request = Zend\Diactoros\ServerRequestFactory::fromGlobals();
+/** @type \Concrete\Core\Http\Kernel $kernel */
+$kernel = $cms->make('Concrete\Core\Http\Kernel');
+
+/** @type \Zend\Diactoros\ServerRequest $request */
+/** @type \Zend\Diactoros\Response      $response */
+$request = ServerRequestFactory::fromGlobals();
 $response = $cms->make('Zend\Diactoros\Response');
-
-/** @type \Concrete\Core\Http\Middleware\RequestHandler $handler */
-$handler = $cms->make('Concrete\Core\Http\Middleware\RequestHandler');
-
-// Set Middlewares
-$middlewares = $cms['config']->get('http.middleware');
-foreach ($middlewares as $middleware) {
-    list($class, $priority) = $middleware;
-    $handler->addMiddleware($cms->make($class), $priority);
-}
-
-// Set Router
-if ($router = $cms['config']->get('http.router')) {
-    $handler->setRouter($cms->make($router));
-}
 
 // Bootstrap diactoros server
 $server = $cms->make('Zend\Diactoros\Server', [
-    function($request, $response) use ($handler) {
-        return $handler->handleRequest($request, $response, function($request, $response) {
-            return $response;
-        });
+    function($request, $response) use ($kernel) {
+        list($request, $response) = $kernel->handleRequest($request, $response);
+
+        return $response;
     }, $request, $response]);
 
 // Begin Listening

@@ -1,21 +1,15 @@
 <?php
-
 namespace Concrete\Core\Http\Factory;
 
 use Concrete\Core\Http\Request;
 use Concrete\Core\Http\Response;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * Class ConcreteRequestFactory
- * Transforms a PSR-7 request into a deprecated concrete5 symfony request,
- * Almost verbatim copy from symfony's psr-7 bridge.
- * @package Concrete\Core\Http\Factory
- */
 class ConcreteRequestFactory extends HttpFoundationFactory
 {
 

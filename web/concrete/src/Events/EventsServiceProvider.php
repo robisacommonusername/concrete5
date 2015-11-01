@@ -8,11 +8,8 @@ class EventsServiceProvider extends ServiceProvider
 
     public function register()
     {
-        if (!$this->app->bound('director')) {
-            $this->app->bindShared('director', function ($app) {
-                return new \Symfony\Component\EventDispatcher\EventDispatcher();
-            });
-        }
+        $this->app->singleton('Symfony\Component\EventDispatcher\EventDispatcher');
+        $this->app->bind('director', 'Symfony\Component\EventDispatcher\EventDispatcher');
     }
 
 }

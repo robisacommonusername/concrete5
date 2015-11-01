@@ -29,7 +29,7 @@ class PackageStartupMiddleware implements MiddlewareInterface, ApplicationAwareI
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         $app = $this->getApplication();
-        if ($this->getDirection() == $this::DIRECTION_IN && $app instanceof Application) {
+        if ($app instanceof Application) {
             $app->setupPackages();
         }
 

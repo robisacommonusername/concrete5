@@ -29,12 +29,10 @@ class LocalizationMiddleware implements MiddlewareInterface, ApplicationAwareInt
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if ($this->getDirection() == $this::DIRECTION_IN) {
-            $u = new User();
-            $lan = $u->getUserLanguageToDisplay();
-            $loc = Localization::getInstance();
-            $loc->setLocale($lan);
-        }
+        $u = new User();
+        $lan = $u->getUserLanguageToDisplay();
+        $loc = Localization::getInstance();
+        $loc->setLocale($lan);
 
         return $next($request, $response);
     }

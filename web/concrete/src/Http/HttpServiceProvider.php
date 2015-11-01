@@ -2,6 +2,7 @@
 namespace Concrete\Core\Http;
 use Concrete\Core\Application\Application;
 use \Concrete\Core\Foundation\Service\Provider as ServiceProvider;
+use Concrete\Core\Http\Middleware\Pipeline\MiddlewarePipeline;
 
 class HttpServiceProvider extends ServiceProvider {
 
@@ -30,6 +31,19 @@ class HttpServiceProvider extends ServiceProvider {
 				'Concrete\Core\Http\Middleware\RequestHandler');
 
 		$app->singleton('Concrete\Core\Http\Middleware\RequestHandler');
+
+		$app->bind('Concrete\Core\Http\RequestHandler', function(Application $app) {
+			$handler = new RequestHandler($app->make('\Concrete\Core\Http\Middleware\Pipeline\MiddlewarePipeline'));
+
+			// Add middlewares
+			$middlewares = $app['config']->get('http.middleware');
+			foreach ($middlewares as $middleware) {
+				list($class, $priority) = $middleware;
+				$handler->addMiddleware($app->make($class), $priority);
+			}
+
+			return $handler;
+		});
 	}
 
 

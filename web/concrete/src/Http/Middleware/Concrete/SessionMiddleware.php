@@ -44,7 +44,9 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
         // Start the session
         $this->beginSession($request, $response);
 
-        list($request, $response) = $next($request->withAttribute('session', $this->session), $response);
+        // Set the session to the request
+        $request = $request->withAttribute('session', $this->session);
+        list($request, $response) = $next($request, $response);
 
         // End the session
         $this->endSession($request, $response);
@@ -61,7 +63,11 @@ class SessionMiddleware implements MiddlewareInterface, ApplicationAwareInterfac
      */
     private function endSession(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $this->session->save();
+        // Save the session stored against the request
+        $session = $request->getAttribute('session');
+        if ($session && $session instanceof SymfonySession) {
+            $session->save();
+        }
     }
 
     /**

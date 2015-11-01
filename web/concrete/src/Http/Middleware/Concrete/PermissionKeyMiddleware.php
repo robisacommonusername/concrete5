@@ -29,10 +29,7 @@ class PermissionKeyMiddleware implements MiddlewareInterface, ApplicationAwareIn
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if ($this->getDirection() == $this::DIRECTION_IN) {
-            Key::loadAll();
-        }
-
+        Key::loadAll();
         return $next($request, $response);
     }
 

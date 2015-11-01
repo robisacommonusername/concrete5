@@ -50,8 +50,8 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         // If we have a cache entry for this request, lets make a response and return it.
-        if ($response = $this->getCacheResponse($request, $response)) {
-            return [$request, $response];
+        if ($cached_response = $this->getCacheResponse($request, $response)) {
+            return [$request, $cached_response];
         }
         list($request, $response) = $next($request, $response);
 
@@ -75,7 +75,7 @@ class CacheMiddleware implements MiddlewareInterface, ApplicationAwareInterface
         }
     }
 
-    private function handleStorage($request, $response, callable $next)
+    private function handleStorage($request, $response)
     {
         // Handle storing things on the response to the cache
     }

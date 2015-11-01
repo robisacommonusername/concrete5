@@ -28,10 +28,7 @@ class PreprocessMiddleware implements MiddlewareInterface, ApplicationAwareInter
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if ($this->getDirection() == $this::DIRECTION_IN) {
-            require DIR_BASE_CORE . '/bootstrap/preprocess.php';
-        }
-
+        require DIR_BASE_CORE . '/bootstrap/preprocess.php';
         return $next($request, $response);
     }
 

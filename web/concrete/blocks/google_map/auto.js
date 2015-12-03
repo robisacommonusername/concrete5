@@ -5,9 +5,9 @@
         
         pacTimer: null,
         
-        init: function () {
+        init: function (api_key) {
             if (!window.C5GMaps.isMapsPresent()) {
-                $('head').append($(unescape("%3Cscript src='https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&sensor=false&callback=window.C5GMaps.setupAutocomplete' type='text/javascript'%3E%3C/script%3E")));
+                $('head').append($(unescape("%3Cscript src='https://maps.googleapis.com/maps/api/js?v=3.exp&key=" + api_key + "&libraries=places&sensor=false&callback=window.C5GMaps.setupAutocomplete' type='text/javascript'%3E%3C/script%3E")));
             } else {
                 window.C5GMaps.setupAutocomplete();
             }

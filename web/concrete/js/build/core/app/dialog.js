@@ -194,8 +194,9 @@ jQuery.fn.dialog.open = function(options) {
             });
         }
     };
-
-    var finalSettings = {'autoOpen': false, 'data': {} };
+    
+    //PATCHED - place dialog at top
+    var finalSettings = {'autoOpen': false, 'data': {}, position: {my:'top',at:'top',of:window} };
     $.extend(finalSettings, defaults, options);
 
     if (finalSettings.element) {

@@ -1458,7 +1458,9 @@ button.ui-button::-moz-focus-inner {
   box-sizing: content-box ; /* See issue #412 */
   /* end concrete5 */
 
-  background: none; overflow: auto; zoom: 1; }
+  background: none; overflow: auto; zoom: 1;
+  /* fix the file manager overflow issue*/
+  max-height: 500px !important;}
 
 .ui-dialog .ui-dialog-buttonpane {
   text-align: left;
